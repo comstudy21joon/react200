@@ -9,6 +9,7 @@ const List = () => {
   // 중요: Ajax는 비동기 기술이기 때문에 useEffect()를 사용해야 한다.
   useEffect(() => {
     $.get("http://localhost:5500/list", (data, status) => {
+      console.log(status);
       if (status === "success") {
         setMemberList(data);
       }
@@ -16,8 +17,8 @@ const List = () => {
   }, []);
 
   // List콤포넌트에 있는 수정기능
-  const saveData = (_no, _name, _message) => {
-    let updateData = { no: _no, name: _name, message: _message };
+  const saveData = (_id, _name, _message) => {
+    let updateData = { _id: _id, name: _name, message: _message };
 
     $.post("http://localhost:5500/update", updateData, (data, status) => {
       if (status === "success") {
@@ -26,10 +27,10 @@ const List = () => {
     });
   };
 
-  const delMember = (_no) => {
+  const delMember = (_id) => {
     // Ajax를 이용해서 Server의 내용을 지우고
     // 콜백함수에서 갱신 해 준다.
-    $.post("http://localhost:5500/delete", { no: _no }, (data, status) => {
+    $.post("http://localhost:5500/delete", { _id: _id }, (data, status) => {
       if (status === "success") {
         setMemberList(data);
       }

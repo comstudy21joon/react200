@@ -41,7 +41,7 @@ const Member = ({ member, saveData, delMember }) => {
               type="button"
               value="저장"
               onClick={(event) => {
-                saveData(member.no, name, message);
+                saveData(member._id, name, message);
                 setIsEdit(false);
               }}
             />
@@ -63,7 +63,7 @@ const Member = ({ member, saveData, delMember }) => {
           type="button"
           value="삭제"
           onClick={(event) => {
-            delMember(member.no);
+            delMember(member._id);
           }}
         />
       </td>
