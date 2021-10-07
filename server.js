@@ -6,6 +6,17 @@ const cors = require("cors");
 const MongoClient = require("mongodb").MongoClient;
 const ObjectId = require("mongodb").ObjectId;
 
+const multer = require("multer");
+const fs = require("fs");
+
+const cookieParser = require("cookie-parser");
+const expressSession = require("express-session");
+
+const static = require("serve-static");
+const path = require("path");
+
+const route = express.Router();
+
 let db = null;
 const dbConnection = (dbUrl, dbName) => {
   MongoClient.connect(dbUrl, { useUnifiedTopology: true }, (err, client) => {
@@ -15,10 +26,39 @@ const dbConnection = (dbUrl, dbName) => {
   });
 };
 
+console.log("====> ", path.join(__dirname, "uploads"));
+app.use("/uploads", static(path.join(__dirname, "public/uploads")));
+
 app.use(cors());
 // body-parser 미들웨어 등록
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.use(cookieParser());
+app.use(
+  expressSession({
+    secret: "my key",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
+
+let storage = multer.diskStorage({
+  destination: function (req, file, callback) {
+    callback(null, "public/uploads");
+  },
+  filename: function (req, file, callback) {
+    callback(null, file.originalname + Date.now()); // 혹은 uuid 모듈...
+  },
+});
+
+let upload = multer({
+  storage: storage,
+  limits: {
+    files: 10,
+    fileSize: 1024 * 1024 * 1024,
+  },
+});
 
 app.get("/", (req, res) => {
   console.log("GET - / 요청 들어 옴...");
@@ -37,13 +77,14 @@ const sendList = (req, res) => {
   });
 };
 
-app.get("/list", (req, res) => {
+//// route 설정 -------------------------------------------------------
+app.route("/list").get((req, res) => {
   console.log("GET - /list 요청 들어 옴...");
   sendList(req, res);
   //res.send(memberList); // end()나 send()를 호출하면 request가 종료된다.
 });
 
-app.post("/input", (req, res) => {
+app.route("/input").post((req, res) => {
   console.log("POST - /input 요청 들어 옴...");
   let inputData = {
     name: req.body.name,
@@ -62,7 +103,7 @@ app.post("/input", (req, res) => {
   });
 });
 
-app.post("/update", (req, res) => {
+app.route("/update").post((req, res) => {
   console.log("POST - /update 요청 들어 옴...");
   let member = {
     name: req.body.name,
@@ -82,7 +123,7 @@ app.post("/update", (req, res) => {
   });
 });
 
-app.post("/delete", (req, res) => {
+app.route("/delete").post((req, res) => {
   let deleteQuery = {
     _id: ObjectId(req.body._id),
   };
@@ -96,6 +137,7 @@ app.post("/delete", (req, res) => {
   });
 });
 
+app.use("/", route);
 // 서버 생성 및 실행
 const server = http.createServer(app);
 server.listen(5500, () => {

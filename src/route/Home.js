@@ -3,7 +3,7 @@
 // import FragmentEx from "../components/Fragment";
 // import ReactStrapAlert from "../components/ReactStrapAlert";
 
-import BtnDropDown from "../components/BtnDropDown";
+// import BtnDropDown from "../components/BtnDropDown";
 
 // import ReactStrapCard from "../components/ReactStrapCard";
 
@@ -16,7 +16,7 @@ const Home = () => {
       {/* <FragmentEx /> */}
       {/* <ReactStrapAlert /> */}
       {/* <ReactStrapCard /> */}
-      <BtnDropDown />
+      {/* <BtnDropDown /> */}
     </>
   );
 };
