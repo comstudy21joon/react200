@@ -43,6 +43,7 @@ const List = () => {
     // 4교시 스스로 완성 해 보기
     let inputData = { name, message };
 
+    // post()를 ajax()로 바꿔줍니다.
     $.post("http://localhost:5500/input", inputData, (data, status) => {
       if (status === "success") {
         setMemberList(data);
@@ -73,6 +74,7 @@ const List = () => {
           onChange={valueChange}
         />
         <br />
+        <input type="file" name="fileImg" />
         <input type="submit" value="저장" />
       </form>
       <table border="1px" width="100%">

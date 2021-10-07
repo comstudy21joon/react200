@@ -48,7 +48,7 @@ let storage = multer.diskStorage({
     callback(null, "public/uploads");
   },
   filename: function (req, file, callback) {
-    callback(null, file.originalname + Date.now()); // 혹은 uuid 모듈...
+    callback(null, Date.now() + "_" + file.originalname); // 혹은 uuid 모듈...
   },
 });
 
@@ -135,6 +135,141 @@ app.route("/delete").post((req, res) => {
     }
     sendList(req, res);
   });
+});
+
+app.route("/photo_upload").post(upload.array("photo", 1), (req, res) => {
+  console.log("POST - /photo_upload 요청 들어 옴 ...");
+  try {
+    var files = req.files;
+
+    console.dir("#===== 업로드된 첫번째 파일 정보 =====#");
+    console.dir(req.files[0]);
+    console.dir("#=====#");
+
+    // 현재의 파일 정보를 저장할 변수 선언
+    var originalname = "",
+      filename = "",
+      mimetype = "",
+      size = 0;
+
+    if (Array.isArray(files)) {
+      // 배열에 들어가 있는 경우 (설정에서 1개의 파일도 배열에 넣게 했음)
+      console.log("배열에 들어있는 파일 갯수 : %d", files.length);
+
+      for (var index = 0; index < files.length; index++) {
+        originalname = files[index].originalname;
+        filename = files[index].filename;
+        mimetype = files[index].mimetype;
+        size = files[index].size;
+      } // end of  for
+    } else {
+      // else  부분 계속 이어서 작성 ....
+      // 배열에 들어가 있지 않은 경우 (현재 설정에서는 해당 없음)
+      console.log("파일 갯수 : 1 ");
+
+      originalname = files[index].originalname;
+      filename = files[index].name;
+      mimetype = files[index].mimetype;
+      size = files[index].size;
+    } // end  of  if~else
+
+    console.log(
+      "현재 파일 정보 : " +
+        originalname +
+        ", " +
+        filename +
+        ", " +
+        mimetype +
+        ", " +
+        size
+    );
+
+    // 클라이언트에 응답 전송
+    res.writeHead("200", { "Content-Type": "text/html;charset=utf8" });
+    res.write("<h3>파일 업로드 성공</h3>");
+    res.write("<hr/>");
+    res.write(
+      "<p>원본 파일명 : " +
+        originalname +
+        " -> 저장 파일명 : <a href='http://localhost:5500/uploads/" +
+        filename +
+        "'>" +
+        filename +
+        "</a></p> 이미지 : <img width='100' src='http://localhost:5500/uploads/" +
+        filename +
+        "'/>"
+    );
+    res.write("<p>MIME TYPE : " + mimetype + "</p>");
+    res.write("<p>파일 크기 : " + size + "</p>");
+    res.end("success!");
+  } catch (err) {
+    console.dir(err.stack);
+    res.end("fail!");
+  } // end of try~catch
+});
+
+app.route("/photo_upload_ajax").post(upload.array("photo", 1), (req, res) => {
+  console.log("POST - /photo_upload_ajax 요청 들어 옴 ...");
+  try {
+    var files = req.files;
+
+    console.dir("#===== 업로드된 첫번째 파일 정보 =====#");
+    console.dir(req.files[0]);
+    console.dir("#=====#");
+
+    // 현재의 파일 정보를 저장할 변수 선언
+    var originalname = "",
+      filename = "",
+      mimetype = "",
+      size = 0;
+
+    if (Array.isArray(files)) {
+      // 배열에 들어가 있는 경우 (설정에서 1개의 파일도 배열에 넣게 했음)
+      console.log("배열에 들어있는 파일 갯수 : %d", files.length);
+
+      for (var index = 0; index < files.length; index++) {
+        originalname = files[index].originalname;
+        filename = files[index].filename;
+        mimetype = files[index].mimetype;
+        size = files[index].size;
+      } // end of  for
+    } else {
+      // else  부분 계속 이어서 작성 ....
+      // 배열에 들어가 있지 않은 경우 (현재 설정에서는 해당 없음)
+      console.log("파일 갯수 : 1 ");
+
+      originalname = files[index].originalname;
+      filename = files[index].name;
+      mimetype = files[index].mimetype;
+      size = files[index].size;
+    } // end  of  if~else
+
+    console.log(
+      "현재 파일 정보 : " +
+        originalname +
+        ", " +
+        filename +
+        ", " +
+        mimetype +
+        ", " +
+        size
+    );
+
+    res.write("<p>MIME TYPE : " + mimetype + "</p>");
+    res.write("<p>파일 크기 : " + size + "</p>");
+    let uploadResultObj = {
+      result: "success",
+      originalname: originalname,
+      filename: filename,
+      doownloadURL: "http://localhost:5500/uploads/" + filename,
+      mimetype: mimetype,
+      size: size,
+    };
+    res.end(JSON.stringify(uploadResultObj));
+  } catch (err) {
+    console.dir(err.stack);
+    res.end(JSON.stringify({ result: "fail" }));
+  } // end of try~catch
 });
 
 app.use("/", route);
